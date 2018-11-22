@@ -2,8 +2,8 @@
 Implementation of Side Channel Cache Attack - Educational Purposes Only!
 
 ## Prerequisites
-[Rust Build Tools](https://www.rust-lang.org/en-US/install.html)
-Linux (Tested on Ubuntu 16.04 LTS)
+[Rust Build Tools](https://www.rust-lang.org/en-US/install.html)  
+Linux (Tested on Ubuntu 16.04 LTS)  
 This project uses inline assembly code. This is only available with the Rust Nightly Compiler. You may install it using the following command after downloading the installing Rust.
 ```
 rustup install nightly
