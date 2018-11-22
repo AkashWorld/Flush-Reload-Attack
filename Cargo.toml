@@ -1,0 +1,8 @@
+[package]
+name = "flush-reload-attack"
+version = "0.1.0"
+authors = ["Khalid <khalkash@gmail.com>"]
+
+[dependencies]
+colored = "1.6"
+libc = "0.2.44"
