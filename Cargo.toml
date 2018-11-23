@@ -4,7 +4,10 @@ version = "0.1.0"
 authors = ["Khalid <khalkash@gmail.com>"]
 
 [profile.dev]
-opt-level = 0
+opt-level = 1
+
+[profile.release]
+opt-level = 1
 
 [dependencies]
 colored = "1.6"
