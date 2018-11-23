@@ -1,11 +1,17 @@
 #![feature(asm)]
+extern crate colored;
+use colored::*;
 pub mod asm;
 pub mod calibration;
 
 fn main() {
-    println!("Hello, world!");
-    let time_1: u64 = asm::get_rdtsc();
-    println!("Time 1: {}", time_1);
-    let time_2: u64 = asm::get_rdtsc();
-    println!("Time 2: {}", time_2);
+    println!("{}", "Flush Reload Test!".blue().bold());
+    unsafe {
+        let threshhold = calibration::get_threshhold();
+        println!(
+            "{} {}",
+            "The threshhold is:".yellow().bold(),
+            format!("{}", threshhold).yellow().bold()
+        );
+    }
 }

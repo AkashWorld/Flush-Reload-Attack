@@ -3,6 +3,10 @@ name = "flush-reload-attack"
 version = "0.1.0"
 authors = ["Khalid <khalkash@gmail.com>"]
 
+[profile.dev]
+opt-level = 0
+
 [dependencies]
 colored = "1.6"
 libc = "0.2.44"
+term_size = "0.3.1"
