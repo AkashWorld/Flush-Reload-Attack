@@ -25,3 +25,6 @@ Then run the executable at:
 ### Test Platform
 Linux Kernel 4.15.0  
 Intel i7 6600, Dual Core  
+
+### Acknowledgement
+[FLUSH+RELOAD: a High Resolution, Low Noise, L3 Cache Side-Channel Attack](https://eprint.iacr.org/2013/448.pdf)

@@ -11,7 +11,7 @@ fn main() {
         println!(
             "{} {}",
             "The threshhold is:".yellow().bold(),
-            format!("{}", threshhold).yellow().bold()
+            format!("{} cycles", threshhold).yellow().bold()
         );
     }
 }

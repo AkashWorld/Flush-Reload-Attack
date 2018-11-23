@@ -8,7 +8,10 @@ use std::thread;
 
 fn print_histogram_array(arr: &[u64]) {
     let (w, _) = term_size::dimensions_stdout().unwrap();
-    let width = w - 20;
+    let mut width: usize = 0;
+    if (w > 20) {
+        width = w - 20;
+    }
     for i in 0..arr.len() {
         print!("{}:", format!("{} cycles({})", i, arr[i]).purple());
         for j in 0..arr[i] / 22 {
@@ -23,14 +26,15 @@ fn print_histogram_array(arr: &[u64]) {
 
 pub unsafe fn get_threshhold() -> u64 {
     const INITIAL_THRESHHOLD: usize = 500;
+    const TEST_ARR_SIZE: usize = 1024;
     let mut hits: [u64; INITIAL_THRESHHOLD] = [0; INITIAL_THRESHHOLD];
     let mut misses: [u64; INITIAL_THRESHHOLD] = [0; INITIAL_THRESHHOLD];
-    let mut arr: [u64; 5 * 1024] = [std::u64::MAX; 5 * 1024];
-    let mut arr_ptr: *mut u64 = &mut arr[0];
-    asm::mem_access(arr_ptr.add(1024 * 2));
+    let mut arr: [u64; 1024] = [std::u64::MAX; 1024];
+    let arr_ptr: *mut u64 = &mut arr[0];
+    asm::mem_access(arr_ptr.add(TEST_ARR_SIZE/2));
     sched_yield();
-    for _ in 0..12 * 1024 * 1024 {
-        let time = asm::full_reload_time(arr_ptr.add(1024 * 2));
+    for _ in 0..10 * TEST_ARR_SIZE * TEST_ARR_SIZE {
+        let time = asm::full_reload_time(arr_ptr.add(TEST_ARR_SIZE/2));
         hits[std::cmp::min(time as usize, hits.len() - 1)] += 1;
     }
     /*Printing thread*/
@@ -39,9 +43,9 @@ pub unsafe fn get_threshhold() -> u64 {
         println!("{}", format!("Hits Histogram").yellow().bold());
         print_histogram_array(&hits_copy[..]);
     });
-    asm::flush_cache_line(arr_ptr.add(1024 * 2));
-    for _ in 0..12 * 1024 * 1024 {
-        let time = asm::full_flush_reload_time(arr_ptr.add(1024 * 2));
+    asm::flush_cache_line(arr_ptr.add(TEST_ARR_SIZE/2));
+    for _ in 0..10 * TEST_ARR_SIZE * TEST_ARR_SIZE {
+        let time = asm::full_flush_reload_time(arr_ptr.add(TEST_ARR_SIZE/2));
         misses[std::cmp::min(time as usize, misses.len() - 1)] += 1;
     }
     match hits_thread.join() {
