@@ -5,7 +5,7 @@ Implementation of Side Channel Cache Attack - Educational Purposes Only!
 [Rust Build Tools](https://www.rust-lang.org/en-US/install.html)  
 Linux (Tested on Ubuntu 16.04 LTS)  
 x86-64  
-This project uses inline assembly code. This is only available with the Rust Nightly Compiler. You may install it using the following command after downloading the installing Rust.
+This project uses inline assembly code. This is only available with the Rust Nightly Compiler. You may install it using the following command after downloading/installing Rust from the link above.
 ```
 rustup install nightly
 ```
