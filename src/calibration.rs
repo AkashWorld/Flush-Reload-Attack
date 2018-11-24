@@ -24,13 +24,13 @@ fn print_histogram_array(arr: &[u64]) {
     }
 }
 
-pub unsafe fn get_threshhold() -> u64 {
+pub unsafe fn get_threshhold() -> u32 {
     const INITIAL_THRESHHOLD: usize = 500;
     const TEST_ARR_SIZE: usize = 1024;
     let mut hits: [u64; INITIAL_THRESHHOLD] = [0; INITIAL_THRESHHOLD];
     let mut misses: [u64; INITIAL_THRESHHOLD] = [0; INITIAL_THRESHHOLD];
     let mut arr: [u64; 1024] = [std::u64::MAX; 1024];
-    let arr_ptr: *mut u64 = &mut arr[0];
+    let arr_ptr: *mut u8 = &mut (arr[0] as u8);
     asm::mem_access(arr_ptr.add(TEST_ARR_SIZE/2));
     sched_yield();
     for _ in 0..10 * TEST_ARR_SIZE * TEST_ARR_SIZE {
@@ -87,12 +87,12 @@ pub unsafe fn get_threshhold() -> u64 {
         "{}",
         format!("Most commonly occured hit cycles: {}", hit_max_time).green()
     );
-    let mut approx_threshhold_count = std::u64::MAX;
-    let mut approx_threadhold: u64 = 0;
+    let mut approx_threshhold_count = std::u32::MAX;
+    let mut approx_threadhold: u32 = 0;
     for i in hit_max_time..misses_max_time {
-        if approx_threshhold_count > hits[i] + misses[i] {
-            approx_threshhold_count = hits[i] + misses[i];
-            approx_threadhold = i as u64;
+        if approx_threshhold_count as u64 > hits[i] + misses[i] {
+            approx_threshhold_count = hits[i] as u32 + misses[i] as u32;
+            approx_threadhold = i as u32;
         }
     }
     approx_threadhold

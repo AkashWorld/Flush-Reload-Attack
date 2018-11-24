@@ -13,3 +13,4 @@ opt-level = 1
 colored = "1.6"
 libc = "0.2.44"
 term_size = "0.3.1"
+memmap = "0.7.0"

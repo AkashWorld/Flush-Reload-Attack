@@ -16,7 +16,7 @@ pub fn get_rdtsc() -> u64 {
 
 /*Accesses location at addresss 'addr'*/
 #[inline]
-pub fn mem_access(addr: *const u64) {
+pub fn mem_access(addr: *const u8) {
     unsafe {
         asm!(
         "movq ($0), %rax\n"
@@ -29,7 +29,7 @@ pub fn mem_access(addr: *const u64) {
 
 /*Flushed the cache line that contains address 'addr'*/
 #[inline]
-pub fn flush_cache_line(addr: *const u64) {
+pub fn flush_cache_line(addr: *const u8) {
     unsafe {
         asm!("clflush ($0)\n"
         :  
@@ -40,7 +40,7 @@ pub fn flush_cache_line(addr: *const u64) {
 }
 
 /*AT&T Syntax Test*/
-pub fn ret_mem(addr: *const u64) -> u64 {
+pub fn ret_mem(addr: *const u8) -> u64 {
     let mut val: u64 = 1000;
     unsafe {
         asm!(
@@ -54,7 +54,7 @@ pub fn ret_mem(addr: *const u64) -> u64 {
 }
 
 /*Returns time after a memory access at address 'addr'*/
-pub fn full_reload_time(addr: *const u64) -> u64 {
+pub fn full_reload_time(addr: *const u8) -> u64 {
     let time: u64;
     unsafe {
         asm!("mfence \n
@@ -75,7 +75,7 @@ pub fn full_reload_time(addr: *const u64) -> u64 {
 }
 
 /*Returns time after a memory access and cache line flush, both at address 'addr'*/
-pub fn full_flush_reload_time(addr: *const u64) -> u64 {
+pub fn full_flush_reload_time(addr: *const u8) -> u64 {
     let time: u64;
     unsafe {
         asm!("mfence \n
