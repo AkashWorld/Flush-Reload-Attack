@@ -40,6 +40,7 @@ pub fn flush_cache_line(addr: *const u8) {
 }
 
 /*AT&T Syntax Test*/
+#[inline]
 pub fn ret_mem(addr: *const u8) -> u64 {
     let mut val: u64 = 1000;
     unsafe {
@@ -54,6 +55,7 @@ pub fn ret_mem(addr: *const u8) -> u64 {
 }
 
 /*Returns time after a memory access at address 'addr'*/
+#[inline]
 pub fn full_reload_time(addr: *const u8) -> u64 {
     let time: u64;
     unsafe {
@@ -75,6 +77,7 @@ pub fn full_reload_time(addr: *const u8) -> u64 {
 }
 
 /*Returns time after a memory access and cache line flush, both at address 'addr'*/
+#[inline]
 pub fn full_flush_reload_time(addr: *const u8) -> u64 {
     let time: u64;
     unsafe {

