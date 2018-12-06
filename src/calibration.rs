@@ -1,7 +1,6 @@
 extern crate colored;
 extern crate libc;
 extern crate term_size;
-use self::libc::sched_yield;
 use asm;
 use colored::*;
 use std::thread;
@@ -32,7 +31,6 @@ pub unsafe fn get_threshhold() -> u32 {
     let mut arr: [u64; 1024] = [std::u64::MAX; 1024];
     let arr_ptr: *mut u8 = &mut (arr[0] as u8);
     asm::mem_access(arr_ptr.add(TEST_ARR_SIZE/2));
-    sched_yield();
     for _ in 0..10 * TEST_ARR_SIZE * TEST_ARR_SIZE {
         let time = asm::full_reload_time(arr_ptr.add(TEST_ARR_SIZE/2));
         hits[std::cmp::min(time as usize, hits.len() - 1)] += 1;

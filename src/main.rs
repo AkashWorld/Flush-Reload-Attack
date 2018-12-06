@@ -9,7 +9,7 @@ pub mod asm;
 pub mod calibration;
 pub mod decode;
 
-const SLOTS: usize = 20000;
+const SLOTS: usize = 2000;
 
 #[link(name = "probe")]
 extern "C" {

@@ -5,7 +5,6 @@ extern crate page_size;
 use self::libc::close;
 use self::libc::mmap;
 use self::libc::open;
-use self::libc::sched_yield;
 use self::memmap::Mmap;
 use self::memmap::MmapOptions;
 use asm;
