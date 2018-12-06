@@ -11,13 +11,13 @@ rustup install nightly
 ```
 
 ### Build
-To build the project, go to the root directory, and run the following command:
+To build the project, go to the /src directory, and run the following command:
 ```
-cargo +nightly build --release
+make release
 ```
 Then run the executable at:
 ```
-./target/release/flush-reload-attack
+./target/release/flush-reload-attack /bin/gpg-1.4.13
 ```
 
 ### Built With
