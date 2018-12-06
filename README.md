@@ -17,7 +17,7 @@ make release
 ```
 Then run the executable at:
 ```
-./target/release/flush-reload-attack
+./target/release/flush-reload-attack /bin/gpg-1.4.13
 ```
 
 ### Built With
