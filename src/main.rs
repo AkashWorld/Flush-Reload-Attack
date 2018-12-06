@@ -42,9 +42,6 @@ fn c_begin_probe(threshhold: u32, path: &Path) {
 }
 
 fn main() {
-    /*Make current thread run on the 0th CPU*/
-    let cpu: scheduler::CpuSet = scheduler::CpuSet::single(0);
-    scheduler::set_affinity(std::process::id() as i32, cpu).unwrap();
     if std::env::args().count() != 2 {
         println!(
             "{}",
