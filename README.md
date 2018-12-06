@@ -11,7 +11,7 @@ rustup install nightly
 ```
 
 ### Build
-To build the project, go to the root directory, and run the following command:
+To build the project, go to the /src directory, and run the following command:
 ```
 make release
 ```
