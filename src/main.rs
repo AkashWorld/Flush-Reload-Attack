@@ -42,7 +42,7 @@ fn c_begin_probe(threshhold: u32, path: &Path) {
 }
 
 fn main() {
-    if std::env::args().count() != 2 {
+    if std::env::args().count() < 2 {
         println!(
             "{}",
             format!("Argument Error! Please insert the path of GnuPG as an argument!")
@@ -64,7 +64,10 @@ fn main() {
     }
     println!("{}", "Flush Reload Test!".blue().bold());
     /*Get threshhold that signifies that a memory access missed*/
-    let threshhold = unsafe { calibration::get_threshhold() };
+    let mut threshhold = unsafe { calibration::get_threshhold() };
+    if args.len() == 3 {
+        threshhold = args[2].parse::<u32>().unwrap();
+    }
     println!(
         "{} {}",
         "The threshhold is:".yellow().bold(),
