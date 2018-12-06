@@ -13,7 +13,7 @@ rustup install nightly
 ### Build
 To build the project, go to the root directory, and run the following command:
 ```
-cargo +nightly build --release
+make release
 ```
 Then run the executable at:
 ```
