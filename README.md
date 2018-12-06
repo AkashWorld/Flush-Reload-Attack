@@ -15,7 +15,7 @@ To build the project, go to the /src directory, and run the following command:
 ```
 make release
 ```
-Then run the executable at:
+Then run the executable at the root project directory with the path to GnuPG as an argument:
 ```
 ./target/release/flush-reload-attack /bin/gpg-1.4.13
 ```
