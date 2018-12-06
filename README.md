@@ -1,5 +1,6 @@
 # Flush-Reload-Attack
-Implementation of Side Channel Cache Attack - Educational Purposes Only!
+Implementation of Side Channel Cache Attack - Educational Purposes Only!  
+This project calibrates itself for the machine it runs on, and then probes the target executable (hardcoded as GnuPG for now) for cache memory accesses. It is based on the research paper listed in the *acknowledgement* section.
 
 ## Prerequisites
 [Rust Build Tools](https://www.rust-lang.org/en-US/install.html)  
