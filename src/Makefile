@@ -18,4 +18,5 @@ release: dirs
 	cargo +nightly build --release
 
 clean:
-	rm *.run *.a *.o ${DEBUG_DIR}/*.a ${RELEASE_DIR}/*.a
+	rm -rf ../target
+	rm *.run *.a *.o ${DEBUG_DIR}/*.a ${RELEASE_DIR}/*.a 

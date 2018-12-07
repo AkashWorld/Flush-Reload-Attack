@@ -9,7 +9,7 @@ pub mod asm;
 pub mod calibration;
 pub mod decode;
 
-const SLOTS: usize = 2000;
+const SLOTS: usize = 20000;
 
 #[link(name = "probe")]
 extern "C" {
@@ -23,7 +23,7 @@ extern "C" {
     ) -> libc::c_void;
 }
 
-fn begin_probe(threshhold: u32, path: &Path) {
+fn c_begin_probe(threshhold: u32, path: &Path) {
     let c_path = ffi::CString::new(path.to_str().unwrap()).unwrap();
     let mut mul_timings: [u64; SLOTS] = [0; SLOTS];
     let mut sqr_timings: [u64; SLOTS] = [0; SLOTS];
@@ -59,7 +59,9 @@ fn main() {
     if !path.exists() || !path.is_file() {
         println!(
             "{}",
-            format!("{} does not exist!", path.to_str().unwrap()).red().bold()
+            format!("{} does not exist!", path.to_str().unwrap())
+                .red()
+                .bold()
         );
         panic!();
     }
@@ -71,5 +73,6 @@ fn main() {
         "The threshhold is:".yellow().bold(),
         format!("{} cycles", threshhold).yellow().bold()
     );
-    begin_probe(threshhold, &path);
+    c_begin_probe(threshhold, &path);
+    //unsafe{decode::gpg_probe::probe(threshhold, &path)};
 }
