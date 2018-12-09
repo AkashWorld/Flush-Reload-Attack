@@ -30,3 +30,7 @@ Intel i7 6600, Dual Core
 
 ### Acknowledgement
 [FLUSH+RELOAD: a High Resolution, Low Noise, L3 Cache Side-Channel Attack](https://eprint.iacr.org/2013/448.pdf)
+
+
+### Future Work
+Currently, the memmap rust library, and the libc crate's binding to mmap does not trigger any cache hits on the memory addresses. Right now I decided to directly use FFI to implement the entire probe in C. Would like to transfer it fully into Rust.
